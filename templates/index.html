@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#080e1b">
+    <meta name="description" content="MachinaSense industrial machine monitoring and predictive maintenance dashboard.">
+
+    <title>MachinaSense | Industrial Intelligence</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div class="app-shell">
+
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">M</div>
+                <div>
+                    <h2>MachinaSense</h2>
+                    <p>INDUSTRIAL INTELLIGENCE</p>
+                </div>
+            </div>
+
+            <p class="nav-label">WORKSPACE</p>
+
+            <nav>
+                <a href="#overview" class="nav-item active">▦ Overview</a>
+                <a href="#sensors" class="nav-item">⌁ Sensor Monitoring</a>
+                <a href="#alerts" class="nav-item">⚠ Maintenance Alerts</a>
+                <a href="#evaluation" class="nav-item">▥ Model Evaluation</a>
+            </nav>
+
+            <div class="sidebar-bottom">
+                <span class="status-dot"></span>
+                <div>
+                    <strong>Local System</strong>
+                    <p id="connectionStatus">Connecting...</p>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+
+            <header class="topbar">
+                <div>
+                    <p class="eyebrow">MACHINE HEALTH PLATFORM</p>
+                    <h1>Monitoring Overview</h1>
+                    <p class="subtitle">
+                        Intelligent fault detection and predictive maintenance
+                    </p>
+                </div>
+
+                <button id="refreshButton" class="primary-button" type="button">
+                    ↻ Refresh Data
+                </button>
+            </header>
+
+            <section id="overview" class="section">
+                <div class="section-heading">
+                    <div>
+                        <h2>System Overview</h2>
+                        <p>Summary of your trained machine-learning model</p>
+                    </div>
+
+                    <span class="status-badge">
+                        <span class="status-dot"></span>
+                        <span id="systemStatus">Checking system...</span>
+                    </span>
+                </div>
+
+                <div class="metrics-grid">
+                    <article class="metric-card">
+                        <p>Records Analyzed</p>
+                        <h3 id="recordsAnalyzed">—</h3>
+                        <span>Held-out test dataset</span>
+                    </article>
+
+                    <article class="metric-card">
+                        <p>Potential Failure Alerts</p>
+                        <h3 id="failureAlerts">—</h3>
+                        <span>Records crossing the decision threshold</span>
+                    </article>
+
+                    <article class="metric-card">
+                        <p>Model F1-Score</p>
+                        <h3 id="modelF1">—</h3>
+                        <span>Held-out classification performance</span>
+                    </article>
+
+                    <article class="metric-card">
+                        <p>Precision</p>
+                        <h3 id="modelPrecision">—</h3>
+                        <span>Quality of positive predictions</span>
+                    </article>
+                </div>
+            </section>
+
+            <section id="sensors" class="section">
+                <div class="section-heading">
+                    <div>
+                        <h2>Sensor Monitoring</h2>
+                        <p>Explore sensor readings from the test dataset</p>
+                    </div>
+                </div>
+
+
+                <article class="panel upload-panel">
+                    <h3>Analyze Sensor CSV</h3>
+                    <p class="panel-description">
+                        Upload a CSV containing the six features required by the trained model.
+                    </p>
+
+                    <form id="uploadForm">
+                        <input type="file" id="csvFile" accept=".csv,text/csv" required>
+                        <button type="submit" class="primary-button">
+                            Analyze CSV
+                        </button>
+                    </form>
+
+                    <p id="uploadStatus" role="status" aria-live="polite"></p>
+
+                    <div id="uploadResults"></div>
+                </article>
+
+                <div class="panel-heading">
+                    <div>
+                        <h3>Sensor Trends</h3>
+                        <p>Sensor readings by record sequence</p>
+                    </div>
+
+                    <select id="sensorSelector" aria-label="Select sensor">
+                        <option value="Air_temperature">Air Temperature (K)</option>
+                        <option value="Process_temperature">Process Temperature (K)</option>
+                        <option value="Rotational_speed">Rotational Speed (rpm)</option>
+                        <option value="Torque">Torque (Nm)</option>
+                        <option value="Tool_wear">Tool Wear (min)</option>
+                    </select>
+                </div>
+
+                <p id="chartMessage" class="panel-description">
+                    Loading sensor data...
+                </p>
+
+                <div class="chart-container">
+                    <canvas id="sensorChart"></canvas>
+                </div>
+                </article>
+            </section>
+
+            <section id="alerts" class="section">
+                <div class="section-heading">
+                    <div>
+                        <h2>Maintenance Alerts</h2>
+                        <p>Records flagged for further inspection</p>
+                    </div>
+                </div>
+
+                <article class="panel">
+
+                    <article class="panel upload-panel">
+                        <h3>Analyze Sensor CSV</h3>
+                        <p class="panel-description">
+                            Upload a CSV containing the sensor features required by MachinaSense.
+                        </p>
+
+                        <form id="uploadForm">
+                            <input type="file" id="csvFile" accept=".csv,text/csv" required>
+                            <button type="submit" class="primary-button">
+                                Analyze CSV
+                            </button>
+                        </form>
+
+                        <p id="uploadStatus" role="status" aria-live="polite"></p>
+
+                        <div id="uploadResults"></div>
+                    </article>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Record ID</th>
+                                    <th>Failure Probability</th>
+                                    <th>Severity</th>
+                                    <th>Recommended Action</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="alertsTable">
+                                <tr>
+                                    <td colspan="4">Loading alerts...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+            </section>
+
+            <section id="evaluation" class="section">
+                <div class="section-heading">
+                    <div>
+                        <h2>Model Evaluation</h2>
+                        <p>Measured results from the held-out test partition</p>
+                    </div>
+                </div>
+
+                <div class="evaluation-grid">
+                    <article class="panel">
+                        <h3>Performance Metrics</h3>
+
+                        <div class="evaluation-row">
+                            <span>Accuracy</span>
+                            <strong id="evalAccuracy">—</strong>
+                        </div>
+
+                        <div class="evaluation-row">
+                            <span>Recall</span>
+                            <strong id="evalRecall">—</strong>
+                        </div>
+
+                        <div class="evaluation-row">
+                            <span>Average Precision</span>
+                            <strong id="evalAP">—</strong>
+                        </div>
+
+                        <div class="evaluation-row">
+                            <span>False Positives</span>
+                            <strong id="evalFalsePositives">—</strong>
+                        </div>
+
+                        <div class="evaluation-row">
+                            <span>Decision Threshold</span>
+                            <strong id="evalThreshold">—</strong>
+                        </div>
+                    </article>
+
+                    <article class="panel">
+                        <h3>Confusion Matrix</h3>
+
+                        <p class="panel-description">
+                            Rows represent actual labels; columns represent predictions.
+                        </p>
+
+                        <div class="matrix-grid">
+                            <div class="matrix-cell matrix-label">Actual / Predicted</div>
+                            <div class="matrix-cell matrix-label">Normal</div>
+                            <div class="matrix-cell matrix-label">Failure</div>
+
+                            <div class="matrix-cell matrix-label">Normal</div>
+                            <div class="matrix-cell" id="tn">—</div>
+                            <div class="matrix-cell" id="fp">—</div>
+
+                            <div class="matrix-cell matrix-label">Failure</div>
+                            <div class="matrix-cell" id="fn">—</div>
+                            <div class="matrix-cell" id="tp">—</div>
+                        </div>
+                    </article>
+                </div>
+
+                <p class="disclaimer">
+                    AI4I 2020 is a synthetic dataset. Predictions are model estimates,
+                    not confirmed mechanical faults or guarantees of future failure.
+                </p>
+            </section>
+
+            <footer>
+                <p>MachinaSense · Intelligent Industrial Monitoring</p>
+                <p>Local prototype · AI-assisted predictive maintenance</p>
+            </footer>
+
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+
+</html>

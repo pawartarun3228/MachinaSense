@@ -1,0 +1,31 @@
+# Python virtual environments
+.venv/
+.venv312/
+venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Generated model files
+models/*.joblib
+
+# Generated predictions and backups
+reports/test_predictions*.csv
+reports/*backup*
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+
+# Editor and operating system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+app_backup.py
+
+# Backup files
+*_backup.*
+**/*backup*
